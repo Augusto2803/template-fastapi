@@ -199,3 +199,6 @@ site
 # flyctl launch added from htmlcov/.gitignore
 # Created by coverage.py
 htmlcov/**/*
+
+
+database.db

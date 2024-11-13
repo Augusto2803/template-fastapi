@@ -20,7 +20,7 @@ class BaseRepository(ABC, Generic[T]):
 
     def criar(self, obj: T) -> T:
         self.__session.add(obj)
-        self.__session.flush(obj)
+        self.__session.flush()
         return obj
 
     def atualizar(self, obj_db: T, obj_in: dict) -> T:
@@ -28,6 +28,7 @@ class BaseRepository(ABC, Generic[T]):
             if hasattr(obj_db, campo):
                 setattr(obj_db, campo, valor)
         self.__session.add(obj_db)
+        self.__session.flush()
         return obj_db
 
     def deletar(self, obj: T) -> None:

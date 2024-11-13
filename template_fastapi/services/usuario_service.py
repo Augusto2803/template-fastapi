@@ -30,6 +30,11 @@ class UsuarioService:
 
     def buscar_usuario_por_id(self, usuario_id: int) -> UsuarioInDB:
         usuario = self.__repository.buscar_por_id(usuario_id)
+        if not usuario:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Usuário não encontrado',
+            )
         return UsuarioInDB.model_validate(usuario)
 
     def criar_usuario(self, usuario_data: UsuarioCreate) -> UsuarioInDB:
@@ -40,19 +45,18 @@ class UsuarioService:
                 detail='O email já está em uso',
             )
 
-        if usuario_data.senha != usuario_data.senha_confirmacao:
+        if usuario_data.senha != usuario_data.confirmacao_senha:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='As senhas não coincidem',
             )
         else:
-            usuario_data = usuario_data.model_dump()
-            usuario_data.senha = criar_senha_hash(usuario_data.senha)
+            senha = criar_senha_hash(usuario_data.senha)
 
         usuario = Usuario(
             nome=usuario_data.nome,
             email=usuario_data.email,
-            senha=usuario_data.senha,
+            senha=senha,
         )
 
         usuario = self.__repository.criar(usuario)
@@ -83,19 +87,19 @@ class UsuarioService:
                 detail='Usuário não encontrado',
             )
 
-        if not verificar_senha(senha_data.senha_atual, usuario.senha):
+        if not verificar_senha(senha_data.senha, usuario.senha):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Senha atual incorreta',
             )
 
-        if senha_data.nova_senha != senha_data.nova_senha_confirmacao:
+        if senha_data.nova_senha != senha_data.confirmacao_nova_senha:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='As novas senhas não coincidem',
             )
 
-        usuario.senha = criar_senha_hash(senha_data.nova_senha)
+        usuario.senha = criar_senha_hash(senha_data.senha)
 
         self.__repository.atualizar(usuario, {'senha': usuario.senha})
         self.__session.commit()
