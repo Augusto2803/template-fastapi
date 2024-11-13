@@ -1,0 +1,47 @@
+[tool.poetry]
+name = "template-fastapi"
+version = "0.1.0"
+description = ""
+authors = ["Augusto2803 <augustobauerdomingos@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = {extras = ["standard"], version = "^0.115.5"}
+sqlalchemy = "^2.0.36"
+alembic = "^1.14.0"
+pydantic-settings = "^2.6.1"
+pwdlib = {extras = ["argon2"], version = "^0.2.1"}
+
+
+[tool.poetry.group.dev.dependencies]
+taskipy = "^1.14.0"
+ruff = "^0.7.3"
+
+
+[tool.ruff]
+line-length = 100
+extend-exclude = ['migrations', '.venv']
+
+
+[tool.ruff.lint]
+preview = true
+select = ['I', 'F', 'E', 'W', 'PL', 'PT']
+
+
+[tool.ruff.format]
+preview = true
+quote-style = 'single'
+
+
+[tool.taskipy.tasks]
+lint = 'ruff check . && ruff check . --diff'
+format = 'ruff check . --fix && ruff format .'
+dev = 'fastapi dev template_fastapi/main.py'
+makemigrations = 'alembic revision --autogenerate -m'
+migrate = 'alembic upgrade head'
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
